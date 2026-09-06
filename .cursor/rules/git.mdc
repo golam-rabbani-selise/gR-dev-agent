@@ -1,0 +1,10 @@
+---
+description: Git conventions
+alwaysApply: true
+---
+# Git
+
+- Base branch: `main`. No direct commits on `main` for anything non-trivial — use a branch.
+- Branch naming: `feat/<short-desc>`, `fix/<short-desc>`, `chore/<short-desc>`.
+- Commits: Conventional Commits — `feat|fix|chore(<seam>): message`, scope = the architecture seam touched (platform, orchestrator, workers, llm, integrations, ui, cli).
+- Never commit: secrets, `node_modules`, `dist`, `coverage`. No force push.

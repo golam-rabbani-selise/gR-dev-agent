@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "workers": {
+    "native": {
+      "enabled": true,
+      "roles": [
+        "planner",
+        "investigator",
+        "backend",
+        "frontend",
+        "coder",
+        "tester",
+        "reviewer",
+        "general"
+      ],
+      "capabilities": []
+    },
+    "claude": {
+      "enabled": false,
+      "roles": [
+        "planner",
+        "permission",
+        "security",
+        "reviewer"
+      ],
+      "capabilities": []
+    },
+    "codex": {
+      "enabled": true,
+      "roles": [
+        "backend",
+        "coder",
+        "tester"
+      ],
+      "capabilities": []
+    },
+    "cursor": {
+      "enabled": true,
+      "roles": [
+        "frontend",
+        "coder"
+      ],
+      "capabilities": []
+    },
+    "opencode": {
+      "enabled": true,
+      "roles": [
+        "reviewer",
+        "regression"
+      ],
+      "capabilities": []
+    },
+    "antigravity": {
+      "enabled": false,
+      "roles": [],
+      "capabilities": []
+    }
+  }
+}

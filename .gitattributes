@@ -1,0 +1,6 @@
+# Normalize line endings on commit, check out platform-native.
+* text=auto
+
+# Fixtures that intentionally exercise a specific line ending must not be normalized.
+test/**/fixtures/**/*.crlf binary
+test/**/fixtures/**/*.lf   binary

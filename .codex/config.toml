@@ -1,0 +1,25 @@
+# Project-scoped Codex CLI config for gR DEV AGENT.
+# Codex auto-loads this when the working directory is inside this project AND
+# the project is marked "trusted" (first run will prompt, or approve via
+# `codex --trust` / the in-app trust prompt).
+#
+# This layers on top of ~/.codex/config.toml (your personal global config) —
+# keys here win for this project. Model, approval_policy and sandbox_mode are
+# left out on purpose so everyone keeps their own personal preference.
+#
+# Mirrors the MCP servers already defined in .mcp.json for Claude Code.
+# Codex also auto-reads AGENTS.md and discovers .agents/skills/ on its own —
+# no config needed for either.
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+# TOML has no variable interpolation, so unlike .mcp.json's "${GITHUB_TOKEN}"
+# this forwards a real environment variable by name. Export
+# GITHUB_PERSONAL_ACCESS_TOKEN (same value as GITHUB_TOKEN) in your shell
+# profile before launching Codex.
+env_vars = ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]

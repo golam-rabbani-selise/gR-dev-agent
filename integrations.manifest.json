@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "note": "Trusted integration metadata (master plan §79, §93, §94). This file is the ONLY source of installer package names, install commands, login commands and worker invocation argv. The model never constructs these. Every entry carries `verified`: set it to true only after checking the value against the vendor's official current documentation.",
+  "integrations": {
+    "claude": {
+      "displayName": "Claude Code",
+      "defaultModelLabel": "sonnet",
+      "executables": ["claude"],
+      "versionArgs": ["--version"],
+      "healthArgs": ["--version"],
+      "installers": [
+        {
+          "id": "npm-global",
+          "method": "npm",
+          "command": "npm",
+          "args": ["install", "-g", "@anthropic-ai/claude-code"],
+          "sourceUrl": "https://www.npmjs.com/package/@anthropic-ai/claude-code",
+          "requiresElevation": false,
+          "supportedPlatforms": ["darwin", "win32", "linux"],
+          "verified": true
+        }
+      ],
+      "authentication": {
+        "methods": [
+          { "id": "login", "type": "interactive-cli", "command": "claude", "args": ["auth", "login"], "verified": true }
+        ],
+        "statusArgs": ["auth", "status", "--json"]
+      },
+      "worker": {
+        "promptDelivery": "arg",
+        "argv": ["-p", "{prompt}", "--model", "{model}", "--output-format", "text"],
+        "useWorktreeCwd": true,
+        "writesResultFile": false,
+        "verified": true
+      }
+    },
+    "codex": {
+      "displayName": "Codex",
+      "defaultModelLabel": "gpt-5.6-sol",
+      "executables": ["codex"],
+      "versionArgs": ["--version"],
+      "healthArgs": ["--version"],
+      "installers": [
+        {
+          "id": "npm-global",
+          "method": "npm",
+          "command": "npm",
+          "args": ["install", "-g", "@openai/codex"],
+          "sourceUrl": "https://www.npmjs.com/package/@openai/codex",
+          "requiresElevation": false,
+          "supportedPlatforms": ["darwin", "win32", "linux"],
+          "verified": false
+        }
+      ],
+      "authentication": {
+        "methods": [{ "id": "login", "type": "interactive-cli", "command": "codex", "args": ["login"], "verified": true }],
+        "statusArgs": ["login", "status"]
+      },
+      "worker": {
+        "promptDelivery": "arg",
+        "argv": ["exec", "--skip-git-repo-check", "--approve-for-me", "--model", "{model}", "{prompt}"],
+        "useWorktreeCwd": true,
+        "writesResultFile": false,
+        "verified": true
+      }
+    },
+    "opencode": {
+      "displayName": "Open Code",
+      "executables": ["opencode"],
+      "versionArgs": ["--version"],
+      "healthArgs": ["--version"],
+      "installers": [
+        {
+          "id": "npm-global",
+          "method": "npm",
+          "command": "npm",
+          "args": ["install", "-g", "opencode-ai"],
+          "sourceUrl": "https://www.npmjs.com/package/opencode-ai",
+          "requiresElevation": false,
+          "supportedPlatforms": ["darwin", "win32", "linux"],
+          "verified": false
+        }
+      ],
+      "authentication": {
+        "methods": [{ "id": "auth-login", "type": "interactive-cli", "command": "opencode", "args": ["auth", "login"], "verified": true }],
+        "statusArgs": ["auth", "list"]
+      },
+      "worker": {
+        "promptDelivery": "arg",
+        "argv": ["run", "--model", "{model}", "{prompt}"],
+        "useWorktreeCwd": true,
+        "writesResultFile": false,
+        "verified": false
+      }
+    },
+    "cursor": {
+      "displayName": "Cursor",
+      "defaultModelLabel": "auto",
+      "executables": ["cursor-agent"],
+      "versionArgs": ["--version"],
+      "healthArgs": ["--version"],
+      "installers": [
+        {
+          "id": "official-installer",
+          "method": "official-installer",
+          "command": null,
+          "args": [],
+          "sourceUrl": "https://cursor.com/cli",
+          "requiresElevation": false,
+          "supportedPlatforms": ["darwin", "linux"],
+          "verified": false,
+          "manualInstructions": "Follow the official install instructions at https://cursor.com/cli"
+        }
+      ],
+      "authentication": {
+        "methods": [{ "id": "login", "type": "interactive-cli", "command": "cursor-agent", "args": ["login"], "verified": true }],
+        "statusArgs": ["status"]
+      },
+      "worker": {
+        "promptDelivery": "arg",
+        "argv": ["-p", "{prompt}", "--output-format", "text", "--trust", "--model", "{model}"],
+        "useWorktreeCwd": true,
+        "writesResultFile": false,
+        "verified": true
+      }
+    },
+    "antigravity": {
+      "displayName": "Antigravity",
+      "executables": ["antigravity"],
+      "versionArgs": ["--version"],
+      "healthArgs": ["--version"],
+      "installers": [
+        {
+          "id": "manual",
+          "method": "manual",
+          "command": null,
+          "args": [],
+          "sourceUrl": null,
+          "requiresElevation": false,
+          "supportedPlatforms": ["darwin", "win32", "linux"],
+          "verified": false,
+          "manualInstructions": "No verified automated installation path yet. Install Antigravity manually, then re-run `riqs-agent integrations detect`."
+        }
+      ],
+      "authentication": { "methods": [], "statusArgs": null },
+      "worker": { "promptDelivery": "file", "argv": ["{promptFile}"], "useWorktreeCwd": true, "writesResultFile": true, "verified": false }
+    }
+  }
+}

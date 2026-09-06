@@ -1,0 +1,111 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "grdev": {
+      "mode": "primary",
+      "description": "gR DEV AGENT -- vendor-neutral multi-agent workflow orchestrator, TypeScript CLI, spec-driven",
+      "color": "#2563eb",
+      "prompt": "You are working in the gR DEV AGENT repo — a vendor-neutral, parallel multi-agent engineering\nworkflow orchestrator, published as an npm CLI (`gr-agent` / `gra`). This repo is the tool's own\nTypeScript source: `src/` (platform/orchestrator/workers/llm/integrations/ui/cli), `adapters/`\n(per-tool scaffold templates gr-agent writes into a *target* repo), `test/` (Vitest).\n\n`.gr-agent/` is this repo's single source of truth for workflow and project knowledge —\nCLAUDE.md, AGENTS.md, .cursor/rules/, and this file are thin adapters pointing back to it. Read\n`.gr-agent/rules/` and `CONTRIBUTING.md` (repo root) before non-trivial work — CONTRIBUTING.md owns\nthe architecture seam table and the safety invariants.\n\n## Key rules (always follow)\n\n**Architecture seams** (CONTRIBUTING.md) — put new code in the seam it belongs to, never bypass\nthe registry/interface for that seam:\n- Platform differences → `src/platform/` (`PlatformService`), never read `process.platform` elsewhere\n- Shared run state → `src/riqs/store.ts` + `src/riqs/contracts.ts` (zod schema + store method)\n- LLM providers → `src/llm/`, implement `LlmProvider`, register in `src/llm/registry.ts`\n- Workers → `src/workers/`, implement `AgentWorker`, register in `src/workers/registry.ts`\n- External CLIs → `integrations.manifest.json` + `src/integrations/providers/` — the manifest is\n  the ONLY place install/login/argv strings live; mark `\"verified\": true` only after checking\n  against the vendor's current official docs\n- Orchestration → `src/orchestrator/` (DAG nodes, router priority chain, merge/tie-break)\n- Rendering → `src/ui/`\n\n**Cross-platform (non-negotiable)** — `node:path` for every path, never string-concatenate;\n`spawn`/`execFile` with argv arrays and `shell: false`; no native addons, pure JS/TS deps only;\npreserve a file's existing line endings on write (`src/util/lineEndings.ts`); `os.tmpdir()`, never\n`/tmp`.\n\n**Safety invariants that must never regress**: workspace boundary, destructive-command approval,\nsecret redaction, installer consent, login consent, write-conflict protection. These cannot be\ndisabled through routing or `--skip`.\n\n**Spec-driven workflow** — specs in `.gr-agent/specs/` (template `_template.md`), plans in\n`.gr-agent/plans/`. The spec's contract is the source of truth once approved — code against it;\na contract change goes to the spec first, never straight to the code.\n\n**Testing**: Vitest, `test/<subject>.test.ts` — happy path + edge case; a safety-invariant change\nneeds an explicit regression test.\n\n**Verification gate**: `npm run build && npm test && npm run lint && npm run typecheck` — all\nfour green before calling anything done.\n\n**Git**: base branch `main`, no direct commits on it for anything non-trivial; branches\n`feat/<desc>` / `fix/<desc>` / `chore/<desc>`; Conventional Commits scoped to the seam touched;\nnever commit secrets, `node_modules`, `dist`; no force push.\n\nNever weaken a safety invariant to make an implementation simpler. Never add an\n`integrations.manifest.json` entry without checking it against current vendor docs.\n"
+    },
+    "grdev-spec": {
+      "mode": "subagent",
+      "description": "gR DEV AGENT: convert an approved .gr-agent/plans/<name>-plan.md into a full feature spec in .gr-agent/specs/<name>.md",
+      "color": "#d97706",
+      "prompt": "You write gR DEV AGENT feature specs.\n\nGiven an approved plan file at `.gr-agent/plans/<name>-plan.md`:\n1. Read the plan and the spec template at `.gr-agent/specs/_template.md`.\n2. Produce `.gr-agent/specs/<name>.md` following the template exactly.\n3. The contract section is the source of truth for implementation — be precise: exported\n   function/type signatures, CLI flags, config shape, or exact `integrations.manifest.json`\n   entries (verb/args/env, never guessed).\n4. Include an implementation checklist with concrete file paths, placed in the architecture seam\n   the feature belongs to (see CONTRIBUTING.md's seam table).\n5. Flag anything touching a safety invariant (workspace boundary, destructive-command approval,\n   secret redaction, installer/login consent, write-conflict protection) — it needs an explicit\n   regression test, not just a happy-path one.\n\nDo NOT implement anything. The spec must be fully reviewable before any code is written.\n"
+    }
+  },
+  "command": {
+    "feature-plan": {
+      "description": "Create a rough implementation plan in .gr-agent/plans/ — first stage of the plan → spec → implement flow",
+      "template": "Create a plan for: {{input}}\n\n## Steps\n\n1. Map the requirement to an architecture seam via CONTRIBUTING.md's seam table (`src/platform/`, `src/orchestrator/`, `src/workers/`, `src/llm/`, `src/integrations/providers/`, `src/ui/`, `src/cli/`).\n2. Create `.gr-agent/plans/<kebab-case-feature-name>-plan.md`.\n3. The plan must cover:\n   - **Requirement summary** — what and why, in 2-3 lines\n   - **Affected areas** — seam(s), files/modules likely to change\n   - **Proposed contract (draft)** — exported functions/types, CLI surface, config or `integrations.manifest.json` shape — not final, `/feature-spec` finalizes this\n   - **Approach** — order of work, whether it touches a safety invariant\n   - **Risks / open questions** — anything needing a human decision\n4. STOP after writing the plan. Do NOT create a spec or write code.\n5. Tell the user: \"Plan ready at `.gr-agent/plans/<name>-plan.md` — review it, then run `/feature-spec <name>` to generate the spec.\"\n\n## Rules\n- Plans live ONLY in `.gr-agent/plans/` — never in `.gr-agent/specs/`\n- One plan file per feature, same name as the future spec"
+    },
+    "feature-spec": {
+      "description": "Convert an approved .gr-agent/plans/<name>-plan.md into a full .gr-agent/specs/<name>.md — second stage of the feature-plan → feature-spec → implement flow",
+      "template": "Generate a spec from: `.gr-agent/plans/{{input}}-plan.md`\n\n## Steps\n\n1. Read `.gr-agent/plans/{{input}}-plan.md`. If it doesn't exist, list available plans in `.gr-agent/plans/` and stop.\n2. Confirm with the user that the plan is APPROVED. If not approved, stop.\n3. Use the `spec-writer` agent to create `.gr-agent/specs/{{input}}.md` from `.gr-agent/specs/_template.md`:\n   - Finalize the contract from the plan's draft (this becomes the source of truth)\n   - Expand into an implementation checklist with concrete file paths\n   - Flag anything touching a safety invariant — it needs a regression test\n4. Mark the plan file header: `> Status: SPEC CREATED → .gr-agent/specs/{{input}}.md`\n5. Tell the user: \"Spec ready at `.gr-agent/specs/{{input}}.md` — review, then `/feature-implement {{input}}`.\"\n6. STOP. Do not write or edit any code in this command — implementation only happens in `/feature-implement`.\n\n## Rules\n- A spec is ONLY created from an approved plan — never directly\n- Once the spec exists, the spec's contract wins; the plan is historical reference\n- Changing the contract later = change the spec first (never the code first)"
+    },
+    "feature-implement": {
+      "description": "Implement an approved spec via subagents — implement, test, verify",
+      "template": "Implement the spec `.gr-agent/specs/{{input}}.md`.\n\n1. Read the spec. If status is not `approved`/`in-progress`, or the contract is ambiguous, stop and ask. Otherwise set status to `in-progress`. The contract section is locked — code against it.\n2. **Implement**: `implement` subagent builds the checklist against the locked contract.\n3. **Tests**: `test-writer` subagent writes Vitest tests for what `implement` built.\n4. **Verify**: `build-check` subagent runs the full gate (build/test/lint/typecheck). On FAIL, diagnose and fix here yourself, re-run until green. Tick checklist items as they pass.\n5. If implementation forces a contract change: STOP, update the spec's contract section, tell the user, get confirmation before continuing.\n6. When the gate is green: set spec status `done`, summarize files changed."
+    },
+    "fix-issue": {
+      "description": "Diagnose and fix a bug from a description or error",
+      "template": "Bug: {{input}}\n\n1. Locate: use the `quick-search` subagent to trace symptom → module → root cause (cheap lookup, not analysis — you do the reasoning after it returns file locations).\n2. State the root cause before changing anything. If it took real digging, say `recommend /model opus` before going deeper.\n3. Fix at the root (not the symptom), following CONTRIBUTING.md's seam boundaries. If the fix changes the public contract (CLI surface, exported API, `integrations.manifest.json`), update or create a spec first and tell the user.\n4. Add or adjust a test that would have caught it — mandatory if a safety invariant was involved.\n5. Verify via the `build-check` subagent (full gate: build/test/lint/typecheck)."
+    },
+    "find-root-cause": {
+      "description": "Investigate why an issue happened, when it was introduced, and how it happens — read-only, no fix",
+      "template": "Issue: {{input}}\n\nPure investigation. Do **not** change any code in this command — the output is a report, not a patch. If the user wants it fixed after, they'll run `/fix-issue`.\n\n1. **Locate** — use the `quick-search` subagent to trace the symptom to its seam and module (cheap lookup only; you do the reasoning after it returns file locations).\n2. **How it happens** — read the located code path and explain the exact mechanism: which condition, which line, which piece of state or input triggers it. Be specific (`path:line`).\n3. **Why it happened (root cause)** — state the underlying cause, not the symptom. If several are plausible, rank them and say which evidence supports the top one.\n4. **When it was introduced** — `git log -p --follow -- <file>` / `git blame` on the exact lines. Report: commit hash, author, date, message.\n5. **Impact** — note other call sites touching the same code path that could share the same root cause.\n6. **Report back**:\n   - **How:** ...\n   - **Why / root cause:** ...\n   - **When introduced:** commit `<hash>` — `<date>` — \"<message>\"\n   - **Impact:** ...\n   - **Suggested next step:** usually \"run `/fix-issue` with this root cause\"\n\nDo not guess the commit or the cause without evidence — if `git blame`/`git log` doesn't give a clean answer, say so explicitly rather than fabricating a date or author."
+    },
+    "save-progress": {
+      "description": "Save current task progress to .gr-agent/PROGRESS.md so work can resume later without reloading full context",
+      "template": "Overwrite `.gr-agent/PROGRESS.md` (create it if missing) with a SHORT checkpoint of exactly where things stand right now. Do not write a transcript or summary of the whole conversation — only what's needed to pick the task back up cold, in as few lines as possible:\n\n1. **Task** — one line: what feature/bug/spec this is (name the spec file in `.gr-agent/specs/` if there is one).\n2. **Last completed step** — one line: the last concrete thing that was finished and verified.\n3. **Next step** — one line: the exact next action, specific enough to act on with no other context.\n4. **Files touched** — bullet list of file paths changed or central to the task so far.\n5. **Branch** — current branch name if work is on a feature branch.\n6. **Notes / blockers** — anything non-obvious the next session needs to know. Omit if none.\n\nUpdate the `_Last updated_` line at the bottom to the current date/time.\n\nKeep the whole file under ~25 lines. This file is the ONLY thing `/resume-task` will read — if it's missing, resuming will be expensive and error-prone, so be precise, not verbose."
+    },
+    "resume-task": {
+      "description": "Resume work from the last /save-progress without reloading full conversation history or the whole codebase",
+      "template": "Resume the interrupted task using ONLY `.gr-agent/PROGRESS.md` as context. This command exists specifically to keep token cost low after a session was cut off — do NOT try to reconstruct history by re-reading the whole codebase, re-running `git log`, or asking to see the prior conversation.\n\nSteps:\n1. Read `.gr-agent/PROGRESS.md`. If it doesn't exist or its Task section is empty, say so and stop — ask what to work on instead of guessing.\n2. Read ONLY the files listed under \"Files touched\" — just enough to re-orient.\n3. State back, in 2-3 lines, what the task is and what the next step is, so the user can confirm before you proceed.\n4. On confirmation, continue directly from \"Next step\". Don't re-plan the whole feature or re-verify already-completed steps.\n5. Once you make meaningful further progress (or before ending the session again), run `/save-progress` — don't wait to be asked.\n\nConstraints: minimize tool calls that pull in large context (avoid broad `Read` of unrelated files, avoid re-running the full test suite unless verifying the next step's change specifically)."
+    },
+    "api-and-interface-design": {
+      "description": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface -- CLI flags, config shape, or a new src/integrations provider surface.",
+      "template": "Follow `.agents/skills/api-and-interface-design/SKILL.md` for this.\n\n{{input}}"
+    },
+    "code-review": {
+      "description": "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow .gr-agent/rules/ and CONTRIBUTING.md's seams/invariants?) and Spec (does it match what the originating issue/spec asked for?).",
+      "template": "Follow `.agents/skills/code-review/SKILL.md` for this.\n\n{{input}}"
+    },
+    "debugging-and-error-recovery": {
+      "description": "Guides systematic root-cause debugging. Use when tests fail, the build breaks, or behavior doesn't match expectations.",
+      "template": "Follow `.agents/skills/debugging-and-error-recovery/SKILL.md` for this.\n\n{{input}}"
+    },
+    "diagnosing-bugs": {
+      "description": "Diagnosis loop for hard bugs and performance regressions.",
+      "template": "Follow `.agents/skills/diagnosing-bugs/SKILL.md` for this.\n\n{{input}}"
+    },
+    "incremental-implementation": {
+      "description": "Delivers changes incrementally. Use for any feature or change that touches more than one file, or that feels too big to land in one step.",
+      "template": "Follow `.agents/skills/incremental-implementation/SKILL.md` for this.\n\n{{input}}"
+    },
+    "security-and-hardening": {
+      "description": "Hardens code against vulnerabilities. Use when handling untrusted input, credentials, installer/login flows, or external integrations -- this project's safety invariants (CONTRIBUTING.md) apply directly.",
+      "template": "Follow `.agents/skills/security-and-hardening/SKILL.md` for this.\n\n{{input}}"
+    },
+    "tdd": {
+      "description": "Test-driven development with Vitest. Use when building a feature or fixing a bug test-first.",
+      "template": "Follow `.agents/skills/tdd/SKILL.md` for this.\n\n{{input}}"
+    },
+    "research": {
+      "description": "Investigate a question against high-trust primary sources and capture findings as a Markdown file in the repo.",
+      "template": "Follow `.agents/skills/research/SKILL.md` for this.\n\n{{input}}"
+    },
+    "resolving-merge-conflicts": {
+      "description": "Use when resolving an in-progress git merge/rebase conflict.",
+      "template": "Follow `.agents/skills/resolving-merge-conflicts/SKILL.md` for this.\n\n{{input}}"
+    },
+    "domain-modeling": {
+      "description": "Build and sharpen this project's domain model/terminology -- architecture seams, worker/provider vocabulary.",
+      "template": "Follow `.agents/skills/domain-modeling/SKILL.md` for this.\n\n{{input}}"
+    },
+    "grill-me": {
+      "description": "A relentless interview to sharpen a plan or design.",
+      "template": "Follow `.agents/skills/grill-me/SKILL.md` for this.\n\n{{input}}"
+    },
+    "prompt-master": {
+      "description": "Generates optimized prompts for AI tools. Use only when explicitly asked to write/fix/improve a prompt.",
+      "template": "Follow `.agents/skills/prompt-master/SKILL.md` for this.\n\n{{input}}"
+    },
+    "writing-for-agents": {
+      "description": "Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md/CLAUDE.md.",
+      "template": "Follow `.agents/skills/writing-for-agents/SKILL.md` for this.\n\n{{input}}"
+    },
+    "to-questionnaire": {
+      "description": "Turn a decision you can't fully answer into a questionnaire for someone else to fill in.",
+      "template": "Follow `.agents/skills/to-questionnaire/SKILL.md` for this.\n\n{{input}}"
+    },
+    "wizard": {
+      "description": "Generate an interactive bash wizard for steps only a human can perform (credentials, third-party dashboards, one-off migrations).",
+      "template": "Follow `.agents/skills/wizard/SKILL.md` for this.\n\n{{input}}"
+    },
+    "wait-what": {
+      "description": "Stop. That last message did not land -- re-pitch it.",
+      "template": "Follow `.agents/skills/wait-what/SKILL.md` for this.\n\n{{input}}"
+    }
+  }
+}

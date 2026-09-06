@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "mode": "auto",
+  "routingPolicy": "fallback",
+  "primaryWorker": "cursor",
+  "parallelism": 4,
+  "routing": {},
+  "preferences": {},
+  "taskDefaults": {},
+  "skip": [],
+  "native": {
+    "default": "default",
+    "providers": {}
+  },
+  "integrations": {
+    "installation": {
+      "enabled": true,
+      "allowAutomaticDownload": false,
+      "allowedMethods": [
+        "npm",
+        "winget",
+        "brew"
+      ],
+      "allowedIntegrations": [
+        "claude",
+        "codex",
+        "cursor",
+        "opencode",
+        "antigravity"
+      ]
+    }
+  }
+}

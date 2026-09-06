@@ -1,0 +1,19 @@
+---
+description: TypeScript / cross-platform conventions
+globs:
+  - "src/**"
+  - "adapters/**"
+  - "test/**"
+alwaysApply: false
+---
+# TypeScript conventions
+
+- Strict TS, Node >= 20, ESM. Follow `eslint.config.js`.
+- Cross-platform rules (non-negotiable, CONTRIBUTING.md): `node:path` for every path, never
+  string-concatenate; `spawn`/`execFile` with argv arrays and `shell: false`; no native addons —
+  pure JS/TS deps only; preserve a file's existing line endings on write
+  (`src/util/lineEndings.ts`); `os.tmpdir()`, never `/tmp`.
+- No new dependency without asking — this is a globally-installed CLI, the dependency tree matters.
+- Vitest tests in `test/<subject>.test.ts` — happy path + edge case; a safety-invariant change
+  needs an explicit regression test.
+- No new NuGet/npm packages, no direct DB/network calls outside `src/integrations/` and `src/llm/`.

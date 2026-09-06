@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+.gr-agent/workflow/
+.riqs-agent/workflow/
+.worktrees/
+
+# AI tool local/ephemeral state (not shared with the team)
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/sdd-cache/
+.claude/.stop-hook-work-marker

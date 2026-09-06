@@ -1,0 +1,28 @@
+---
+description: gR DEV AGENT workspace core rules
+alwaysApply: true
+---
+# gR DEV AGENT
+
+Thin adapter — `.gr-agent/` is the single source of truth for workflow and project knowledge
+(`CONTRIBUTING.md` "The one rule"). Full rules: `.gr-agent/rules/`. Architecture seams and safety
+invariants: `CONTRIBUTING.md` at the repo root — read it before non-trivial work.
+
+A vendor-neutral, parallel multi-agent engineering workflow orchestrator, published as an npm CLI.
+TypeScript, Node >= 20, ESM. `src/` (platform/orchestrator/workers/llm/integrations/ui/cli),
+`adapters/` (per-tool scaffold templates), `test/` (vitest).
+
+Workflow rules:
+1. Feature specs live in `.gr-agent/specs/` (template: `.gr-agent/specs/_template.md`). The spec's
+   contract is the source of truth — code against it; contract changes go to the spec first.
+2. New code goes in the seam it belongs to (CONTRIBUTING.md's seam table) — never bypass the
+   registry/interface for that seam.
+3. `integrations.manifest.json` is the ONLY place installer/login/worker-argv strings live —
+   never construct these inline, and only mark an entry `"verified": true` after checking it
+   against the vendor's current official docs.
+4. Never weaken a safety invariant (workspace boundary, destructive-command approval, secret
+   redaction, installer/login consent, write-conflict protection) to simplify a change.
+5. Never: force push, direct commits on `main` for anything non-trivial, editing
+   `node_modules`/`dist`, committing secrets or `package-lock.json` by hand.
+
+Verification: `npm run build && npm test && npm run lint && npm run typecheck` — all four green.
