@@ -57,9 +57,8 @@ registry install command will be:
 npm install -g gr-dev-agent
 ```
 
-If GitHub installation fails with `sh: tsup: command not found`, reinstall from the latest commit of
-this repository. The package builds itself during GitHub install, and `tsup` must be available from
-the package dependencies.
+GitHub installs use the prebuilt `dist/` files committed to this repository, so users do not need
+the build toolchain to install the CLI.
 
 Works the same from macOS Terminal / iTerm2 and Windows PowerShell / Windows Terminal. No Docker,
 WSL, Homebrew or Chocolatey required for the core CLI.
