@@ -21,10 +21,10 @@ Requirements:
 - npm
 - Git, if you want worktree isolation, diffs and normal repository workflows
 
-Install the CLI globally:
+Install the CLI globally from GitHub:
 
 ```bash
-npm install -g gr-dev-agent
+npm install -g github:golam-rabbani-selise/gR-dev-agent
 gr-agent --version
 ```
 
@@ -44,10 +44,17 @@ gr-agent doctor
 gr-agent
 ```
 
-Update to the latest published version:
+Update to the latest GitHub version:
 
 ```bash
-npm install -g gr-dev-agent@latest
+npm install -g github:golam-rabbani-selise/gR-dev-agent
+```
+
+`gr-dev-agent` is not published to the public npm registry yet. After it is published, the npm
+registry install command will be:
+
+```bash
+npm install -g gr-dev-agent
 ```
 
 Works the same from macOS Terminal / iTerm2 and Windows PowerShell / Windows Terminal. No Docker,
