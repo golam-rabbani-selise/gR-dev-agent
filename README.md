@@ -21,10 +21,10 @@ Requirements:
 - npm
 - Git, if you want worktree isolation, diffs and normal repository workflows
 
-Install the CLI globally from GitHub:
+Install the CLI globally from the GitHub tarball:
 
 ```bash
-npm install -g github:golam-rabbani-selise/gR-dev-agent
+npm install -g https://github.com/golam-rabbani-selise/gR-dev-agent/archive/refs/heads/main.tar.gz
 gr-agent --version
 ```
 
@@ -47,7 +47,7 @@ gr-agent
 Update to the latest GitHub version:
 
 ```bash
-npm install -g github:golam-rabbani-selise/gR-dev-agent
+npm install -g https://github.com/golam-rabbani-selise/gR-dev-agent/archive/refs/heads/main.tar.gz
 ```
 
 `gr-dev-agent` is not published to the public npm registry yet. After it is published, the npm
@@ -57,8 +57,8 @@ registry install command will be:
 npm install -g gr-dev-agent
 ```
 
-GitHub installs use the prebuilt `dist/` files committed to this repository, so users do not need
-the build toolchain to install the CLI.
+The GitHub tarball install uses the prebuilt `dist/` files committed to this repository, so users do
+not need the build toolchain to install the CLI.
 
 Works the same from macOS Terminal / iTerm2 and Windows PowerShell / Windows Terminal. No Docker,
 WSL, Homebrew or Chocolatey required for the core CLI.
