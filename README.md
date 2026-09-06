@@ -113,10 +113,10 @@ consent) installed by `gr-agent integrations setup`.
 
 ## Workspaces
 
-`gR DEV AGENT` is a global engineering agent. Any repository or multi-repo workspace is supported —
-RIQS, Recyclium, personal projects, any existing Git repository. RIQS is a first-class **workspace**
-(RIQS backend / Angular / Scheduler / React, RIQS repository skills, permission auditing, Cockpit and
-subscription tracing) — not the product identity.
+`gR DEV AGENT` is a global engineering agent. Any repository or multi-repo workspace is supported:
+backend services, frontend apps, libraries, internal tools, personal projects, and existing Git
+repositories. The product identity is the workflow orchestrator; each repository supplies its own
+project memory, conventions, skills, and workflow presets under `.gr-agent/`.
 
 ## Source of truth
 
