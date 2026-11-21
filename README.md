@@ -1,5 +1,7 @@
 # gR DEV AGENT
 
+![gR DEV AGENT — AI Engineering Workflow Orchestrator](gr-dev-agent-thumbnail.png)
+
 **AI engineering, orchestrated.**
 
 A vendor-neutral, parallel multi-agent engineering workflow orchestrator.
@@ -148,3 +150,4 @@ npm run typecheck
 This repository currently implements Milestone 1 (core runtime, DAG orchestration, native + external
 + manual workers, integration detection/install/auth, user-controlled routing/agents) plus the
 branded home screen.
+
